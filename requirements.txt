@@ -1,0 +1,2 @@
+# Dependencies for Todo Application CLI
+rich>=13.0.0
