@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageBubble } from '../MessageBubble/MessageBubble';
 import { Message, ChatResponse, ChatInterfaceProps } from './ChatInterface.types';
-import { sendMessage } from '@/lib/api';
+import { sendMessage } from '@/services/api';
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   conversationId: initialConversationId,

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { MessageBubble } from '../MessageBubble/MessageBubble';
 import { Message, ChatResponse } from '../ChatInterface/ChatInterface.types';
-import { sendMessage } from '@/lib/api';
+import { sendMessage } from '@/services/api';
 
 export const FloatingChatButton: React.FC = () => {
   const { user } = useAuth();
