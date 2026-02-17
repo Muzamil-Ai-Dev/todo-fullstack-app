@@ -99,11 +99,18 @@ export const FloatingChatButton: React.FC = () => {
 
   return (
     <>
-      {/* Chat Widget Popup */}
+      {/* Chat Widget Popup - Responsive for all devices */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 sm:w-96 h-[500px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className="fixed z-50 flex flex-col overflow-hidden bg-white border border-gray-200 shadow-2xl rounded-2xl animate-in slide-in-from-bottom-4 fade-in duration-300
+          /* Mobile: Full width at bottom */
+          bottom-0 left-0 right-0 h-[70vh] rounded-b-none rounded-t-2xl
+          /* Tablet and larger: Floating widget */
+          sm:bottom-24 sm:left-auto sm:right-6 sm:w-96 sm:h-[500px] sm:rounded-2xl
+          /* Large screens: Slightly larger */
+          lg:w-[420px] lg:h-[550px]
+        ">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center justify-between px-4 py-3 text-white bg-gradient-to-r from-indigo-600 to-purple-600">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -112,7 +119,7 @@ export const FloatingChatButton: React.FC = () => {
             </div>
             <button
               onClick={closeChat}
-              className="p-1 hover:bg-white/20 rounded-full transition-colors"
+              className="p-1 transition-colors rounded-full hover:bg-white/20"
               aria-label="Close chat"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,10 +129,10 @@ export const FloatingChatButton: React.FC = () => {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50">
+          <div className="flex-1 p-3 space-y-2 overflow-y-auto bg-gray-50">
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 mt-8">
-                <p className="text-sm mb-1">Hi! I&apos;m your task assistant.</p>
+              <div className="mt-8 text-center text-gray-500">
+                <p className="mb-1 text-sm">Hi! I&apos;m your task assistant.</p>
                 <p className="text-xs">Try: &quot;Add a task to buy groceries&quot;</p>
               </div>
             )}
@@ -141,7 +148,7 @@ export const FloatingChatButton: React.FC = () => {
 
             {isLoading && (
               <div className="flex justify-start mb-2">
-                <div className="bg-gray-100 rounded-lg px-3 py-2">
+                <div className="px-3 py-2 bg-gray-100 rounded-lg">
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                     <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -162,7 +169,7 @@ export const FloatingChatButton: React.FC = () => {
           )}
 
           {/* Input */}
-          <div className="border-t border-gray-200 p-3 bg-white">
+          <div className="p-3 bg-white border-t border-gray-200">
             <div className="flex items-end space-x-2">
               <textarea
                 ref={inputRef}
@@ -173,19 +180,19 @@ export const FloatingChatButton: React.FC = () => {
                 disabled={isLoading}
                 maxLength={500}
                 rows={1}
-                className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 max-h-24"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:opacity-50 max-h-24"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!inputValue.trim() || isLoading}
-                className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="p-2 text-white transition-all rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
               </button>
             </div>
-            <p className="text-[10px] text-gray-400 mt-1 text-right">
+            <p className="mt-1 text-right text-[10px] text-gray-400">
               {inputValue.length}/500
             </p>
           </div>
@@ -195,11 +202,15 @@ export const FloatingChatButton: React.FC = () => {
       {/* Floating Button */}
       <button
         onClick={toggleChat}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 group ${
-          isOpen
+        className={`fixed z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all duration-300 group
+          /* Mobile: Slightly smaller and closer to edge */
+          bottom-4 right-4
+          /* Tablet and larger: Standard position */
+          sm:bottom-6 sm:right-6
+          ${isOpen
             ? 'bg-gray-700 hover:bg-gray-800 rotate-0'
             : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:scale-110'
-        }`}
+          }`}
         aria-label={isOpen ? 'Close chat' : 'Open AI Chat'}
       >
         {isOpen ? (
@@ -211,8 +222,8 @@ export const FloatingChatButton: React.FC = () => {
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
-            {/* Tooltip */}
-            <span className="absolute right-16 px-3 py-1.5 bg-gray-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+            {/* Tooltip - hidden on mobile */}
+            <span className="absolute right-16 px-3 py-1.5 text-sm text-white bg-gray-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none hidden sm:block">
               AI Assistant
             </span>
           </>
