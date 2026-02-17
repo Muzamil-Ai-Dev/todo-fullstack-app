@@ -127,6 +127,37 @@ export const FloatingChatButton: React.FC = () => {
       }
     } catch (err) {
       console.error('Error sending message:', err);
+
+      // If there's a server error, try again without conversation ID (start fresh)
+      if (conversationId) {
+        console.log('Retrying without conversation ID...');
+        setConversationId(undefined);
+        try {
+          const retryResponse: ChatResponse = await sendMessage(userMessage, undefined);
+          if (retryResponse.conversation_id) {
+            setConversationId(retryResponse.conversation_id);
+          }
+          const assistantMessage: Message = {
+            id: Date.now() + 1,
+            role: 'assistant',
+            content: retryResponse.response,
+            created_at: new Date().toISOString()
+          };
+          setMessages((prev) => [...prev, assistantMessage]);
+
+          if (retryResponse.tool_calls && retryResponse.tool_calls.length > 0) {
+            const actions = retryResponse.tool_calls.map(tc => tc.tool_name);
+            if (actions.some(a => ['add_task', 'complete_task', 'delete_task', 'update_task'].includes(a))) {
+              dispatchTasksChanged(actions[0]);
+            }
+          }
+          setIsLoading(false);
+          return;
+        } catch (retryErr) {
+          console.error('Retry also failed:', retryErr);
+        }
+      }
+
       setError(
         err instanceof Error
           ? err.message

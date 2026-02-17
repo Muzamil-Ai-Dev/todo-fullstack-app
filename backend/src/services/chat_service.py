@@ -50,19 +50,26 @@ class ChatService:
             Conversation object
         """
         if conversation_id:
-            stmt = select(Conversation).where(
-                Conversation.id == conversation_id,
-                Conversation.user_id == user_id
-            )
-            conversation = session.exec(stmt).first()
-            if conversation:
-                return conversation
+            try:
+                stmt = select(Conversation).where(
+                    Conversation.id == conversation_id,
+                    Conversation.user_id == user_id
+                )
+                conversation = session.exec(stmt).first()
+                if conversation:
+                    print(f"[ChatService] Found existing conversation: {conversation_id}")
+                    return conversation
+                else:
+                    print(f"[ChatService] Conversation {conversation_id} not found, creating new one")
+            except Exception as e:
+                print(f"[ChatService] Error finding conversation: {e}")
 
         # Create new conversation
         conversation = Conversation(user_id=user_id)
         session.add(conversation)
         session.commit()
         session.refresh(conversation)
+        print(f"[ChatService] Created new conversation: {conversation.id}")
         return conversation
 
     def get_conversation_history(
@@ -187,6 +194,8 @@ class ChatService:
         Returns:
             Dictionary with response, conversation_id, and tool_calls
         """
+        print(f"[ChatService] Processing chat for user: {user_id}, conversation_id: {conversation_id}")
+
         # Get or create conversation
         conversation = self.get_or_create_conversation(
             session, user_id, conversation_id
@@ -199,6 +208,7 @@ class ChatService:
 
         # Get conversation history
         history = self.get_conversation_history(session, conversation.id)
+        print(f"[ChatService] Conversation history length: {len(history)}")
 
         # Build messages for Groq API
         system_message = {

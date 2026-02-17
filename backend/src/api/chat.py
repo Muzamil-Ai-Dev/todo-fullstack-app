@@ -8,6 +8,7 @@ including the main chat endpoint and conversation management endpoints.
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from typing import Optional
+import traceback
 
 from ..database.database import get_session
 from ..schemas.chat import (
@@ -50,6 +51,8 @@ async def send_message(
     """
     try:
         user_id = current_user["user_id"]
+        print(f"[Chat API] Processing message from user: {user_id}")
+        print(f"[Chat API] Message: {request.message[:50]}...")
 
         # Validate message length
         if len(request.message) > 500:
@@ -65,6 +68,8 @@ async def send_message(
             message=request.message,
             conversation_id=request.conversation_id
         )
+
+        print(f"[Chat API] Successfully processed chat, response length: {len(result['response'])}")
 
         return ChatResponse(
             conversation_id=result["conversation_id"],
@@ -82,6 +87,9 @@ async def send_message(
     except HTTPException:
         raise
     except Exception as e:
+        print(f"[Chat API] ERROR: {str(e)}")
+        print(f"[Chat API] Traceback: {traceback.format_exc()}")
+
         if "Groq API" in str(e) or "API key" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
