@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Task } from '../TaskForm/TaskForm.types';
 import TaskForm from '../TaskForm/TaskForm';
 import TodoList from '../TodoList';
@@ -17,22 +17,34 @@ const TaskManager: React.FC<TaskManagerProps> = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<{show: boolean, taskId: number | null}>({show: false, taskId: null});
 
   // Fetch tasks from API
+  const fetchTasks = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await taskApi.getTasks(filter);
+      setTasks(response.tasks || []);
+    } catch (err) {
+      setError('Failed to fetch tasks. Please try again.');
+      console.error('Error fetching tasks:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [filter]);
+
+  // Initial fetch and filter changes
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const response = await taskApi.getTasks(filter);
-        setTasks(response.tasks || []);
-      } catch (err) {
-        setError('Failed to fetch tasks. Please try again.');
-        console.error('Error fetching tasks:', err);
-      } finally {
-        setLoading(false);
-      }
+    fetchTasks();
+  }, [fetchTasks]);
+
+  // Listen for task changes from chat widget
+  useEffect(() => {
+    const handleTasksChanged = () => {
+      console.log('Tasks changed event received, refreshing tasks...');
+      fetchTasks();
     };
 
-    fetchTasks();
-  }, [filter]);
+    window.addEventListener('tasksChanged', handleTasksChanged);
+    return () => window.removeEventListener('tasksChanged', handleTasksChanged);
+  }, [fetchTasks]);
 
   const handleCreateTask = async (taskData: { title: string; description?: string }) => {
     try {
