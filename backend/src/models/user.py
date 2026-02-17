@@ -23,6 +23,10 @@ class User(UserBase, table=True):
     # Relationship to tasks
     tasks: list["Task"] = Relationship(back_populates="user")
 
+    # Relationship to conversations and messages (for chatbot feature)
+    conversations: list["Conversation"] = Relationship(back_populates="user")
+    messages: list["Message"] = Relationship(back_populates="user")
+
 
 
 class UserRead(UserBase):

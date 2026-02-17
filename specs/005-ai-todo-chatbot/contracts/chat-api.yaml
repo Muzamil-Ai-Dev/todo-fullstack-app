@@ -1,0 +1,369 @@
+openapi: 3.0.3
+info:
+  title: Todo Chatbot API
+  description: AI-powered conversational interface for todo task management
+  version: 1.0.0
+  contact:
+    name: Todo Application Team
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://*.hf.space
+    description: Production (Hugging Face Spaces)
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from Better Auth authentication
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        conversation_id:
+          type: integer
+          description: Existing conversation ID. If not provided, a new conversation is created.
+          example: 1
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: User's natural language message
+          example: "Add a task to buy groceries"
+
+    ToolCallInfo:
+      type: object
+      properties:
+        tool_name:
+          type: string
+          description: Name of the MCP tool invoked
+          example: "add_task"
+        arguments:
+          type: object
+          description: Arguments passed to the tool
+          example:
+            title: "Buy groceries"
+            description: "Milk, eggs, bread"
+        result:
+          type: object
+          description: Result returned by the tool
+          example:
+            task_id: 5
+            status: "created"
+            title: "Buy groceries"
+
+    ChatResponse:
+      type: object
+      properties:
+        conversation_id:
+          type: integer
+          description: The conversation ID (new or existing)
+          example: 1
+        response:
+          type: string
+          description: AI assistant's response text
+          example: "I've created a new task 'Buy groceries' for you. Anything else you'd like to add?"
+        tool_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/ToolCallInfo'
+          description: List of MCP tools invoked during processing
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        role:
+          type: string
+          enum: [user, assistant]
+          example: "user"
+        content:
+          type: string
+          example: "Add a task to buy groceries"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-02-17T10:30:00Z"
+
+    ConversationHistory:
+      type: object
+      properties:
+        conversation_id:
+          type: integer
+          example: 1
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ConversationList:
+      type: object
+      properties:
+        conversations:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              created_at:
+                type: string
+                format: date-time
+              updated_at:
+                type: string
+                format: date-time
+              message_count:
+                type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Task not found"
+        detail:
+          type: string
+          example: "No task exists with ID 99"
+
+    ValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              loc:
+                type: array
+                items:
+                  type: string
+              msg:
+                type: string
+              type:
+                type: string
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send a chat message
+      description: |
+        Send a natural language message to the AI chatbot and receive a response.
+        The chatbot can create, view, complete, delete, and update tasks through conversation.
+
+        **Conversation Management:**
+        - If `conversation_id` is not provided, a new conversation is created
+        - If `conversation_id` is provided, the message is added to that conversation
+        - The response includes the `conversation_id` for subsequent requests
+
+        **Rate Limits:**
+        - Message length: 500 characters maximum
+        - Subject to Groq API free tier limits
+      operationId: sendMessage
+      tags:
+        - Chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Authenticated user's ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              new_conversation:
+                summary: Start a new conversation
+                value:
+                  message: "Add a task to buy groceries"
+              continue_conversation:
+                summary: Continue existing conversation
+                value:
+                  conversation_id: 1
+                  message: "Mark that task as complete"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                task_created:
+                  summary: Task created successfully
+                  value:
+                    conversation_id: 1
+                    response: "I've created a new task 'Buy groceries' for you."
+                    tool_calls:
+                      - tool_name: "add_task"
+                        arguments:
+                          title: "Buy groceries"
+                        result:
+                          task_id: 5
+                          status: "created"
+                task_listed:
+                  summary: Tasks listed
+                  value:
+                    conversation_id: 1
+                    response: "Here are your tasks:\n1. [ ] Buy groceries\n2. [✓] Call mom"
+                    tool_calls:
+                      - tool_name: "list_tasks"
+                        arguments:
+                          status: "all"
+                        result:
+                          tasks:
+                            - id: 1
+                              title: "Buy groceries"
+                              completed: false
+                            - id: 2
+                              title: "Call mom"
+                              completed: true
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              example:
+                detail:
+                  - loc: ["body", "message"]
+                    msg: "ensure this value has at most 500 characters"
+                    type: "value_error.any_str.max_length"
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Unauthorized"
+                detail: "Valid JWT token required"
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Conversation not found"
+                detail: "No conversation exists with ID 99"
+        '503':
+          description: AI service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "AI service temporarily unavailable"
+                detail: "Please try again in a moment"
+
+  /api/{user_id}/conversations:
+    get:
+      summary: List user's conversations
+      description: Retrieve a list of all conversations for the authenticated user
+      operationId: listConversations
+      tags:
+        - Chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationList'
+        '401':
+          description: Authentication required
+
+  /api/{user_id}/conversations/{conversation_id}:
+    get:
+      summary: Get conversation history
+      description: Retrieve all messages in a specific conversation
+      operationId: getConversation
+      tags:
+        - Chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Conversation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationHistory'
+        '401':
+          description: Authentication required
+        '404':
+          description: Conversation not found
+
+    delete:
+      summary: Delete a conversation
+      description: Delete a conversation and all its messages
+      operationId: deleteConversation
+      tags:
+        - Chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Conversation deleted
+        '401':
+          description: Authentication required
+        '404':
+          description: Conversation not found

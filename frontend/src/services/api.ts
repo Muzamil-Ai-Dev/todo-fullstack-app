@@ -147,3 +147,109 @@ export const authApi = {
     }
   }
 };
+
+// Chat API types
+interface ChatResponse {
+  conversation_id: number;
+  response: string;
+  tool_calls: Array<{
+    tool_name: string;
+    arguments: Record<string, unknown>;
+    result: Record<string, unknown>;
+  }>;
+}
+
+interface ConversationHistory {
+  conversation_id: number;
+  messages: Array<{
+    id: number;
+    role: string;
+    content: string;
+    created_at: string;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ConversationListItem {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+}
+
+// Helper to get user_id from token or storage
+const getUserId = (): string => {
+  // Try to get from localStorage first
+  const userId = localStorage.getItem('user_id');
+  if (userId) return userId;
+
+  // Fallback: decode JWT token to get user_id
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || payload.user_id || '';
+    } catch {
+      return '';
+    }
+  }
+  return '';
+};
+
+// API service functions for chat
+export const chatApi = {
+  // Send a chat message
+  sendMessage: async (
+    message: string,
+    conversationId?: number
+  ): Promise<ChatResponse> => {
+    const userId = getUserId();
+    const response: AxiosResponse = await apiClient.post(
+      `/api/${userId}/chat`,
+      {
+        message,
+        conversation_id: conversationId
+      }
+    );
+    return response.data;
+  },
+
+  // Get list of conversations
+  getConversations: async (
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<{ conversations: ConversationListItem[] }> => {
+    const userId = getUserId();
+    const response: AxiosResponse = await apiClient.get(
+      `/api/${userId}/chat/conversations`,
+      { params: { limit, offset } }
+    );
+    return response.data;
+  },
+
+  // Get a specific conversation
+  getConversation: async (
+    conversationId: number
+  ): Promise<ConversationHistory> => {
+    const userId = getUserId();
+    const response: AxiosResponse = await apiClient.get(
+      `/api/${userId}/chat/conversations/${conversationId}`
+    );
+    return response.data;
+  },
+
+  // Delete a conversation
+  deleteConversation: async (conversationId: number): Promise<void> => {
+    const userId = getUserId();
+    await apiClient.delete(`/api/${userId}/chat/conversations/${conversationId}`);
+  }
+};
+
+// Convenience function for sending messages (used by ChatInterface)
+export const sendMessage = async (
+  message: string,
+  conversationId?: number
+): Promise<ChatResponse> => {
+  return chatApi.sendMessage(message, conversationId);
+};
