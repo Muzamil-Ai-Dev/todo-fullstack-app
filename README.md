@@ -1,95 +1,150 @@
-# Todo Application CLI
+# TodoPro - Full-Stack Todo Application
 
-A menu-driven CLI Todo application with in-memory storage built in Python.
+A modern full-stack todo application built with Next.js, FastAPI, SQLModel, and Neon PostgreSQL.
 
 ## Overview
 
-This is a command-line interface (CLI) todo application that allows users to manage tasks through a menu system. The application stores all tasks in memory only and provides a clean, guided user experience.
+This is a full-stack web application that allows users to manage tasks with user authentication, persistent storage, and a responsive UI. Part of the **Hackathon II - Phase 2** project.
+
+## Live Demo
+
+- **Frontend**: https://muzamil-ai-dev.github.io/todo-fullstack-app/
+- **Backend API**: https://muzamil-ai-dev-todo-backend.hf.space
 
 ## Features
 
-- Add new tasks with titles and optional descriptions
-- View all tasks with their status and details
-- Update existing tasks
-- Delete tasks with confirmation
-- Mark tasks as complete or incomplete
-- Clean exit functionality
-- Professional visual appearance with Rich formatting
-- Enhanced menu display with borders and colors
-- Professional task table display with aligned columns
-- Consistent blue/gray color scheme throughout
-- Improved error and success message formatting
-- Enhanced user guidance with clear prompts
+- User authentication (Register, Login, Logout)
+- Create, Read, Update, Delete (CRUD) tasks
+- Mark tasks as complete/incomplete
+- Responsive design with Tailwind CSS
+- JWT-based authentication
+- Persistent PostgreSQL database storage
 
-## Requirements
+## Tech Stack
 
-- Python 3.13+
-- Rich library for enhanced CLI formatting (installed automatically via dependencies)
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 16+ (App Router), React 19, TypeScript, Tailwind CSS |
+| Backend | Python FastAPI |
+| ORM | SQLModel |
+| Database | Neon Serverless PostgreSQL |
+| Authentication | JWT Tokens |
+| Deployment | GitHub Pages (Frontend), Hugging Face Spaces (Backend) |
 
-## Installation
+## Project Structure
 
-1. Clone or download the repository
-2. Navigate to the project directory
-3. Install dependencies (if any) with `pip install -e .`
-
-## Usage
-
-Run the application using:
 ```
-python src/cli/main.py
+├── frontend/                # Next.js application
+│   ├── src/
+│   │   ├── app/            # App router pages
+│   │   ├── components/     # React components
+│   │   ├── context/        # Auth context
+│   │   ├── services/       # API services
+│   │   └── styles/         # Global styles
+│   └── package.json
+├── backend/                 # FastAPI application
+│   ├── src/
+│   │   ├── api/            # API endpoints
+│   │   ├── models/         # SQLModel models
+│   │   ├── services/       # Business logic
+│   │   ├── database/       # Database config
+│   │   └── config/         # Settings
+│   ├── main.py
+│   └── requirements.txt
+├── specs/                   # Feature specifications
+└── .github/workflows/       # CI/CD pipelines
 ```
 
-Or if installed as a package:
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login user |
+| POST | `/api/auth/logout` | Logout user |
+| GET | `/api/auth/me` | Get current user |
+| GET | `/api/tasks` | Get all tasks |
+| POST | `/api/tasks` | Create task |
+| PUT | `/api/tasks/{id}` | Update task |
+| DELETE | `/api/tasks/{id}` | Delete task |
+| PATCH | `/api/tasks/{id}/toggle-complete` | Toggle completion |
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 20+
+- Python 3.11+
+- PostgreSQL database (or Neon account)
+
+### Backend Setup
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Create .env file with your database URL
+cp .env.example .env
+
+# Run the server
+uvicorn main:app --reload --port 8000
 ```
-todo-app
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+
+# Create .env.local with backend URL
+echo "NEXT_PUBLIC_API_BASE_URL=http://localhost:8000" > .env.local
+
+# Run the development server
+npm run dev
 ```
 
-## Menu Options
+## Deployment
 
-1. **Add Task** - Create a new task with title and optional description
-2. **View Tasks** - Display all tasks with their status and details
-3. **Update Task** - Modify an existing task's title or description
-4. **Delete Task** - Remove a task with confirmation
-5. **Mark Task as Complete** - Update task status to completed
-6. **Mark Task as Incomplete** - Update task status to pending
-7. **Exit** - Close the application
+This project uses GitHub Actions for automated deployment:
 
-## Architecture
+- **Frontend**: Automatically deployed to GitHub Pages on push to master
+- **Backend**: Automatically deployed to Hugging Face Spaces on push to master
 
-The application follows a clean architecture pattern:
+### Required GitHub Secrets
 
-- **Models**: Task entity definition (`src/models/task.py`)
-- **Services**: Business logic for task operations (`src/services/task_service.py`)
-- **CLI**: User interface and menu system (`src/cli/main.py`)
-- **Lib**: Utility functions (`src/lib/`)
-  - **Rich Utilities**: Rich formatting functions (`src/lib/rich_utils.py`)
-  - **Theme Configuration**: Professional color scheme (`src/lib/theme.py`)
+| Secret | Description |
+|--------|-------------|
+| `HF_TOKEN` | Hugging Face write token |
+| `BACKEND_API_URL` | Backend API URL for frontend |
 
-## Data Model
+### Required HF Space Secrets
 
-Each task contains:
-- `id`: Auto-incremented unique identifier
-- `title`: Required string (1-200 characters)
-- `description`: Optional string
-- `completed`: Boolean status
-- `created_at`: Timestamp when task was created
-- `updated_at`: Timestamp when task was last modified
-
-## Error Handling
-
-The application implements comprehensive error handling:
-- All invalid inputs are caught and handled gracefully
-- Users are returned to the main menu after errors
-- No crashes occur under any circumstances
-- Friendly error messages guide users
+| Secret | Description |
+|--------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET_KEY` | Secret key for JWT tokens |
+| `BETTER_AUTH_SECRET` | Secret for auth |
 
 ## Testing
 
-To run tests:
-```
+### Backend Tests
+```bash
+cd backend
 pytest tests/
+```
+
+### Frontend Tests
+```bash
+cd frontend
+npm test
 ```
 
 ## License
 
 MIT License
+
+---
+
+Built as part of **Hackathon II - Phase 2** using Spec-Driven Development with Claude Code and Spec-Kit Plus.
