@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List, Union
+from pathlib import Path
 import os
 import json
 
@@ -52,8 +53,12 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "localhost"
     SERVER_HOST: str = "http://localhost:8000"
 
+    # Groq API configuration (free tier LLM)
+    GROQ_API_KEY: str = ""
+
     class Config:
-        env_file = ".env"
+        # Look for .env in project root (parent of backend directory)
+        env_file = str(Path(__file__).parent.parent.parent.parent / ".env")
         env_file_encoding = "utf-8"
 
 settings = Settings()

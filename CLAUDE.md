@@ -212,6 +212,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - HTML, CSS, JavaScript (ES6+) + CSS Framework (Tailwind CSS or Bootstrap), potentially React if needed for enhanced components (004-professional-frontend)
 - N/A (existing frontend structure will be preserved) (004-professional-frontend)
+- Python 3.13+ + FastAPI, SQLModel, Groq API, MCP SDK (Official), OpenAI Agents SDK (compatible with Groq) (005-ai-todo-chatbot)
+- Neon PostgreSQL (existing from Phase 2) (005-ai-todo-chatbot)
 
 ## Recent Changes
 - 004-professional-frontend: Added HTML, CSS, JavaScript (ES6+) + CSS Framework (Tailwind CSS or Bootstrap), potentially React if needed for enhanced components

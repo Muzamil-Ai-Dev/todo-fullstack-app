@@ -95,3 +95,24 @@ security_scheme = {
     "bearerFormat": "JWT",
     "description": "Enter your JWT token to access protected endpoints"
 }
+
+
+async def get_current_user(request: Request) -> dict:
+    """
+    Dependency that validates JWT token and returns user info dict.
+    Used by chat API endpoints.
+    """
+    jwt_bearer = JWTBearer(auto_error=True)
+    await jwt_bearer.__call__(request)
+
+    user_id = getattr(request.state, 'user_id', None)
+    user_email = getattr(request.state, 'user_email', None)
+
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return {"user_id": user_id, "email": user_email}

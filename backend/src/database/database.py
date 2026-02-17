@@ -20,6 +20,7 @@ def init_db() -> None:
     from sqlmodel import SQLModel
     from ..models.user import User  # noqa: F401
     from ..models.task import Task  # noqa: F401
+    from ..models.conversation import Conversation, Message  # noqa: F401
 
     # Create all tables defined in SQLModel models
     SQLModel.metadata.create_all(engine)

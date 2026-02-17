@@ -4,6 +4,7 @@ from fastapi.security import HTTPBearer
 from fastapi.responses import JSONResponse
 from src.api.auth import auth_router
 from src.api.tasks import tasks_router
+from src.api.chat import router as chat_router
 from src.config.settings import settings
 from src.database.database import init_db
 import os
@@ -62,6 +63,7 @@ app.add_middleware(
 # Include routers
 app.include_router(auth_router, prefix="/api", tags=["auth"])
 app.include_router(tasks_router, prefix="/api", tags=["tasks"])
+app.include_router(chat_router, prefix="/api/{user_id}", tags=["chat"])
 
 @app.get("/")
 def read_root():
