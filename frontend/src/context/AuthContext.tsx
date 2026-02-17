@@ -86,7 +86,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
+    // Clear all auth and chat data from localStorage
     localStorage.removeItem('access_token');
+    // Clear all chat conversation data for any user
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('chat_conversation_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
     authApi.logout();
   };
 

@@ -35,22 +35,34 @@ export const FloatingChatButton: React.FC = () => {
     return `${STORAGE_KEY_PREFIX}${user.id}`;
   }, [user]);
 
-  // Load conversation from localStorage on mount
+  // Load conversation from localStorage on mount or when user changes
   useEffect(() => {
     const storageKey = getStorageKey();
-    if (storageKey) {
+    if (storageKey && user) {
       try {
         const saved = localStorage.getItem(storageKey);
         if (saved) {
           const data = JSON.parse(saved);
           setMessages(data.messages || []);
           setConversationId(data.conversationId);
+        } else {
+          // No saved data for this user, clear state
+          setMessages([]);
+          setConversationId(undefined);
         }
       } catch (e) {
         console.error('Failed to load conversation:', e);
+        setMessages([]);
+        setConversationId(undefined);
       }
+    } else {
+      // No user, clear state
+      setMessages([]);
+      setConversationId(undefined);
+      setShowHistory(false);
+      setConversations([]);
     }
-  }, [getStorageKey]);
+  }, [getStorageKey, user]);
 
   // Save conversation to localStorage when messages change
   useEffect(() => {
