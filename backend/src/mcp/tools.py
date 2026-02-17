@@ -314,12 +314,11 @@ def execute_tool(
 
     tool_func = tool_map[tool_name]
 
-    # Add session and user_id to arguments
-    args = {"session": session, "user_id": user_id}
-    args.update(arguments)
+    # Ensure arguments is a dict (can be None from Groq API)
+    if arguments is None:
+        arguments = {}
 
-    # Remove session and user_id from args if they exist in arguments (they shouldn't)
-    # and call with positional/keyword args properly
+    # Call the tool function with session, user_id, and other arguments
     return tool_func(
         session=session,
         user_id=user_id,
