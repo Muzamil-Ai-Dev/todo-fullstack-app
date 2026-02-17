@@ -227,6 +227,12 @@ def update_task(
         Dictionary with update result
     """
     try:
+        # Ensure task_id is an integer (Groq may pass it as string)
+        if isinstance(task_id, str):
+            task_id = int(task_id)
+
+        print(f"[update_task] Updating task {task_id} for user {user_id} with title: {title}")
+
         # Validate title length if provided
         if title and len(title) > 200:
             return {
@@ -241,6 +247,12 @@ def update_task(
         if description is not None:
             update_data["description"] = description
 
+        if not update_data:
+            return {
+                "success": False,
+                "error": "No update data provided (title or description required)"
+            }
+
         task_update = TaskUpdate(**update_data)
 
         updated_task = TaskService.update_task(
@@ -251,11 +263,13 @@ def update_task(
         )
 
         if not updated_task:
+            print(f"[update_task] Task {task_id} not found for user {user_id}")
             return {
                 "success": False,
                 "error": f"Task with ID {task_id} not found or doesn't belong to you"
             }
 
+        print(f"[update_task] Successfully updated task {task_id} to title: {updated_task.title}")
         return {
             "success": True,
             "task_id": updated_task.id,
@@ -263,7 +277,14 @@ def update_task(
             "description": updated_task.description,
             "completed": updated_task.completed
         }
+    except ValueError as e:
+        print(f"[update_task] ValueError: {e}")
+        return {
+            "success": False,
+            "error": f"Invalid task_id format: {task_id}"
+        }
     except Exception as e:
+        print(f"[update_task] Exception: {e}")
         return {
             "success": False,
             "error": str(e)

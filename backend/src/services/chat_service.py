@@ -278,7 +278,7 @@ Keep responses short and friendly. Always be helpful!"""
                     elif tool_name == "delete_task":
                         response_text = f"I've deleted the task '{result.get('title')}'."
                     elif tool_name == "update_task":
-                        response_text = f"I've updated task {result.get('task_id')}."
+                        response_text = f"I've updated the task to '{result.get('title')}'."
                 else:
                     response_text = f"Sorry, I couldn't complete that action: {result.get('error')}"
 
