@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from src.api.auth import auth_router
 from src.api.tasks import tasks_router
 from src.config.settings import settings
+from src.database.database import init_db
 import os
 
 # Initialize FastAPI app with security scheme components
@@ -27,6 +28,15 @@ app = FastAPI(
         }
     }
 )
+
+# Initialize database tables on startup
+@app.on_event("startup")
+def startup_event():
+    try:
+        init_db()
+        print("Database tables initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
 
 # Dynamic CORS for production (allows all *.hf.space subdomains)
 def get_allowed_origins():
