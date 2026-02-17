@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production';
-const repoName = 'Todo_Application'; // GitHub repository name
+const repoName = 'todo-fullstack-app'; // GitHub repository name
 
 const nextConfig = {
   // Enable static export for GitHub Pages
