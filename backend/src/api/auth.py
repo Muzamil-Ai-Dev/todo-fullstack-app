@@ -57,9 +57,10 @@ def register_user(
             created_at=db_user.created_at
         )
     except Exception as e:
+        print(f"Registration error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed"
+            detail=f"Registration failed: {str(e)}"
         )
 
 

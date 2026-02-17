@@ -32,11 +32,15 @@ app = FastAPI(
 # Initialize database tables on startup
 @app.on_event("startup")
 def startup_event():
+    import traceback
     try:
+        print("Starting database initialization...")
+        print(f"Database URL (masked): {settings.DATABASE_URL[:30]}...")
         init_db()
         print("Database tables initialized successfully")
     except Exception as e:
         print(f"Error initializing database: {e}")
+        traceback.print_exc()
 
 # Dynamic CORS for production (allows all *.hf.space subdomains)
 def get_allowed_origins():
