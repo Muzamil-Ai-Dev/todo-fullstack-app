@@ -59,7 +59,7 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <UserAvatar
-                    email={user.email || user.username || 'user@example.com'}
+                    email={user.email || 'user@example.com'}
                     size="md"
                   />
                 </div>
