@@ -1,0 +1,52 @@
+name: Deploy Backend to Hugging Face Spaces
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-to-huggingface:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Hugging Face Hub
+        run: pip install huggingface_hub
+
+      - name: Deploy to Hugging Face Spaces
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python -c "
+          from huggingface_hub import HfApi
+          import os
+
+          api = HfApi(token=os.environ['HF_TOKEN'])
+
+          # Upload the backend folder to Hugging Face Space
+          api.upload_folder(
+              folder_path='backend',
+              repo_id='Muzamil-Ai-Dev/todo-backend',
+              repo_type='space',
+              space_sdk='docker'
+          )
+          print('Successfully deployed to Hugging Face Spaces!')
+          "
+
+      - name: Deployment info
+        run: |
+          echo "Backend deployed to: https://huggingface.co/spaces/Muzamil-Ai-Dev/todo-backend"
+          echo "API will be available at: https://muzamil-ai-dev-todo-backend.hf.space"

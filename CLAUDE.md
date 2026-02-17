@@ -208,3 +208,10 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
+
+## Active Technologies
+- HTML, CSS, JavaScript (ES6+) + CSS Framework (Tailwind CSS or Bootstrap), potentially React if needed for enhanced components (004-professional-frontend)
+- N/A (existing frontend structure will be preserved) (004-professional-frontend)
+
+## Recent Changes
+- 004-professional-frontend: Added HTML, CSS, JavaScript (ES6+) + CSS Framework (Tailwind CSS or Bootstrap), potentially React if needed for enhanced components

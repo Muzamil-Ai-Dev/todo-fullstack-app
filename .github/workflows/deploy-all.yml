@@ -1,0 +1,26 @@
+name: Deploy All (Frontend + Backend)
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_frontend:
+        description: 'Deploy frontend to GitHub Pages'
+        required: true
+        default: true
+        type: boolean
+      deploy_backend:
+        description: 'Deploy backend to Hugging Face'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  deploy-frontend:
+    if: inputs.deploy_frontend
+    uses: ./.github/workflows/deploy-frontend.yml
+    secrets: inherit
+
+  deploy-backend:
+    if: inputs.deploy_backend
+    uses: ./.github/workflows/deploy-backend.yml
+    secrets: inherit

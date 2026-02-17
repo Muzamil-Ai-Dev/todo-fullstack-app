@@ -69,3 +69,12 @@ Thumbs.db
 # Project specific
 phase-1-upgraded.md
 phase-1-upgraded (1).md
+
+# Next.js
+frontend/out/
+frontend/.next/
+frontend/node_modules/
+
+# Temp files
+tmpclaude-*
+temp_content.txt
