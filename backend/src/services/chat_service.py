@@ -173,7 +173,11 @@ class ChatService:
             return message.content or "", tool_calls_info
 
         except Exception as e:
-            raise Exception(f"Groq API error: {str(e)}")
+            error_str = str(e)
+            # Check for rate limit error
+            if "rate_limit_exceeded" in error_str or "429" in error_str:
+                raise Exception("Rate limit exceeded. Please try again in a few minutes. The free tier has a daily token limit.")
+            raise Exception(f"Groq API error: {error_str}")
 
     def process_chat(
         self,
