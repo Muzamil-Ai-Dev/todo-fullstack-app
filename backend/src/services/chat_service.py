@@ -220,7 +220,7 @@ YOUR MAIN JOB: Help users manage their tasks through natural conversation.
 You have access to these tools:
 - add_task: Create a new task
 - list_tasks: View tasks (all, pending, or completed)
-- complete_task: Mark a task as done
+- complete_task: Mark a task as completed OR incomplete (use completed=true for complete, completed=false for incomplete)
 - delete_task: Remove a task
 - update_task: Change a task's title or description
 
@@ -228,9 +228,11 @@ IMPORTANT RULES FOR TOOL CALLS:
 1. ALWAYS use task_id as an INTEGER (number), never as a string. Example: {"task_id": 5} NOT {"task_id": "5"}
 2. When user mentions a task by name (like "shopping"), first call list_tasks to find its ID, then use that numeric ID.
 3. If user doesn't provide a task ID, ask them to specify which task by ID number.
+4. To mark a task as INCOMPLETE, use complete_task with completed=false: {"task_id": 5, "completed": false}
+5. To mark a task as COMPLETE, use complete_task with completed=true: {"task_id": 5, "completed": true}
 
 HOW TO RESPOND:
-1. If the user wants to do something with tasks (create, view, complete, delete, update), use the appropriate tool.
+1. If the user wants to do something with tasks (create, view, complete, incomplete, delete, update), use the appropriate tool.
 2. If the user says hello, hi, greetings, or similar, respond warmly: "Hello! 👋 I'm your task assistant. How can I help you today? You can ask me to add tasks, show your tasks, or manage existing ones."
 3. If the user asks something unrelated to tasks (like weather, math, general questions, etc.), politely say: "I'm sorry, I can only help with managing your todo tasks. I can add tasks, show your tasks, mark them complete, or update them. What would you like to do?"
 4. If the message is unclear, ask for clarification: "I'm not sure what you'd like to do. Try saying something like 'Add a task to buy groceries' or 'Show me my tasks'."
@@ -300,7 +302,10 @@ Keep responses short and friendly. Always be helpful!"""
                             ])
                             response_text = f"Here are your tasks:\n{task_list}"
                     elif tool_name == "complete_task":
-                        response_text = f"Great! I've marked task {result.get('task_id')} as complete."
+                        if result.get('completed'):
+                            response_text = f"Great! I've marked task {result.get('task_id')} as complete."
+                        else:
+                            response_text = f"I've marked task {result.get('task_id')} as incomplete."
                     elif tool_name == "delete_task":
                         response_text = f"I've deleted the task '{result.get('title')}'."
                     elif tool_name == "update_task":

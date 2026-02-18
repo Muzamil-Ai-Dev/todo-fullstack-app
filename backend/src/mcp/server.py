@@ -54,13 +54,18 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "complete_task",
-            "description": "Mark a task as completed. Use when user says done, finished, or completed.",
+            "description": "Mark a task as completed or incomplete. Use when user says done, finished, completed, or wants to mark incomplete/uncomplete.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "task_id": {
                         "type": "integer",
-                        "description": "The ID of the task to mark as complete"
+                        "description": "The ID of the task to mark as complete or incomplete"
+                    },
+                    "completed": {
+                        "type": "boolean",
+                        "description": "True to mark as complete, False to mark as incomplete. Defaults to True.",
+                        "default": True
                     }
                 },
                 "required": ["task_id"]

@@ -112,15 +112,17 @@ def list_tasks(
 def complete_task(
     session: Session,
     user_id: str,
-    task_id: int
+    task_id: int,
+    completed: bool = True
 ) -> Dict[str, Any]:
     """
-    Mark a task as completed.
+    Mark a task as completed or incomplete.
 
     Args:
         session: Database session
         user_id: ID of the user
-        task_id: ID of the task to complete
+        task_id: ID of the task to complete/incomplete
+        completed: True to mark complete, False to mark incomplete
 
     Returns:
         Dictionary with completion result
@@ -131,7 +133,7 @@ def complete_task(
             task_id = int(task_id)
 
         # Use TaskUpdate model
-        task_update = TaskUpdate(completed=True)
+        task_update = TaskUpdate(completed=completed)
 
         updated_task = TaskService.update_task(
             session=session,
