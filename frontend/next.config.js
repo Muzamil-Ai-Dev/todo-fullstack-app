@@ -1,18 +1,21 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === 'production';
+const repoName = 'todo-fullstack-app'; // GitHub repository name
+
 const nextConfig = {
-  // Disable static export - we're running on Hugging Face Spaces, not GitHub Pages
-  // output: 'export',
+  // Enable static export for GitHub Pages
+  output: 'export',
 
-  // No basePath needed for Hugging Face Spaces
-  // basePath: isProd ? `/${repoName}` : '',
+  // Set basePath for GitHub Pages deployment
+  basePath: isProd ? `/${repoName}` : '',
 
-  // Disable image optimization for compatibility
+  // Disable image optimization for static export
   images: {
     unoptimized: true,
   },
 
-  // No trailing slashes needed
-  trailingSlash: false,
+  // Trailing slashes for GitHub Pages compatibility
+  trailingSlash: true,
 
   // Environment variables
   env: {
