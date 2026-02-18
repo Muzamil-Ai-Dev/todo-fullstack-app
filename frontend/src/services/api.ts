@@ -31,7 +31,10 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token might be expired, redirect to login
       localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      // Use relative path to respect basePath in production
+      if (typeof window !== 'undefined') {
+        window.location.href = `${process.env.__NEXT_ROUTER_BASEPATH || ''}/login`;
+      }
     }
     return Promise.reject(error);
   }
