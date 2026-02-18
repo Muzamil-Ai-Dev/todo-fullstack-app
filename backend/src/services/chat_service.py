@@ -224,6 +224,11 @@ You have access to these tools:
 - delete_task: Remove a task
 - update_task: Change a task's title or description
 
+IMPORTANT RULES FOR TOOL CALLS:
+1. ALWAYS use task_id as an INTEGER (number), never as a string. Example: {"task_id": 5} NOT {"task_id": "5"}
+2. When user mentions a task by name (like "shopping"), first call list_tasks to find its ID, then use that numeric ID.
+3. If user doesn't provide a task ID, ask them to specify which task by ID number.
+
 HOW TO RESPOND:
 1. If the user wants to do something with tasks (create, view, complete, delete, update), use the appropriate tool.
 2. If the user says hello, hi, greetings, or similar, respond warmly: "Hello! 👋 I'm your task assistant. How can I help you today? You can ask me to add tasks, show your tasks, or manage existing ones."
@@ -247,16 +252,37 @@ Keep responses short and friendly. Always be helpful!"""
             import json
 
             for tc in tool_calls:
-                tool_name = tc["name"]
-                arguments = json.loads(tc["arguments"])
+                try:
+                    tool_name = tc["name"]
 
-                # Execute the tool
-                result = execute_tool(session, user_id, tool_name, arguments)
-                executed_tools.append({
-                    "tool_name": tool_name,
-                    "arguments": arguments,
-                    "result": result
-                })
+                    # Parse arguments safely
+                    arguments = {}
+                    if tc.get("arguments"):
+                        try:
+                            arguments = json.loads(tc["arguments"])
+                        except (json.JSONDecodeError, TypeError):
+                            # If arguments is already a dict or invalid JSON
+                            if isinstance(tc["arguments"], dict):
+                                arguments = tc["arguments"]
+                            else:
+                                print(f"[ChatService] Failed to parse arguments: {tc['arguments']}")
+                                arguments = {}
+
+                    # Execute the tool
+                    result = execute_tool(session, user_id, tool_name, arguments)
+                    executed_tools.append({
+                        "tool_name": tool_name,
+                        "arguments": arguments,
+                        "result": result
+                    })
+                except Exception as e:
+                    print(f"[ChatService] Error executing tool {tc.get('name', 'unknown')}: {e}")
+                    executed_tools.append({
+                        "tool_name": tc.get("name", "unknown"),
+                        "arguments": {},
+                        "result": {"success": False, "error": f"Tool execution failed: {str(e)}"}
+                    })
+                    continue
 
                 # Add tool result to conversation for follow-up
                 if result.get("success"):

@@ -25,7 +25,7 @@ class ChatRequest(BaseModel):
 class ToolCallInfo(BaseModel):
     """Information about an MCP tool invoked during processing"""
     tool_name: str = Field(description="Name of the MCP tool invoked")
-    arguments: dict = Field(description="Arguments passed to the tool")
+    arguments: Optional[dict] = Field(default={}, description="Arguments passed to the tool")
     result: dict = Field(description="Result returned by the tool")
 
 

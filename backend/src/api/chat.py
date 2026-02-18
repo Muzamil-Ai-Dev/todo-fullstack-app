@@ -77,7 +77,7 @@ async def send_message(
             tool_calls=[
                 ToolCallInfo(
                     tool_name=tc["tool_name"],
-                    arguments=tc["arguments"],
+                    arguments=tc.get("arguments") or {},
                     result=tc["result"]
                 )
                 for tc in result.get("tool_calls", [])

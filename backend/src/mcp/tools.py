@@ -126,6 +126,10 @@ def complete_task(
         Dictionary with completion result
     """
     try:
+        # Ensure task_id is an integer (Groq may pass it as string)
+        if isinstance(task_id, str):
+            task_id = int(task_id)
+
         # Use TaskUpdate model
         task_update = TaskUpdate(completed=True)
 
@@ -147,6 +151,11 @@ def complete_task(
             "task_id": updated_task.id,
             "title": updated_task.title,
             "completed": updated_task.completed
+        }
+    except ValueError as e:
+        return {
+            "success": False,
+            "error": f"Invalid task_id format: {task_id}"
         }
     except Exception as e:
         return {
@@ -172,6 +181,10 @@ def delete_task(
         Dictionary with deletion result
     """
     try:
+        # Ensure task_id is an integer (Groq may pass it as string)
+        if isinstance(task_id, str):
+            task_id = int(task_id)
+
         # Get task first to return its title
         from ..models.task import Task
         from sqlmodel import select
@@ -198,6 +211,11 @@ def delete_task(
             "success": True,
             "task_id": task_id,
             "title": title
+        }
+    except ValueError as e:
+        return {
+            "success": False,
+            "error": f"Invalid task_id format: {task_id}"
         }
     except Exception as e:
         return {
