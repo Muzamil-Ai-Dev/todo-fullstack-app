@@ -1,21 +1,22 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production';
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 const repoName = 'todo-fullstack-app'; // GitHub repository name
 
 const nextConfig = {
-  // Enable static export for GitHub Pages
-  output: 'export',
+  // Enable static export only for GitHub Pages, standalone for Docker/Kubernetes
+  ...(isGitHubPages ? { output: 'export' } : { output: 'standalone' }),
 
-  // Set basePath for GitHub Pages deployment
-  basePath: isProd ? `/${repoName}` : '',
+  // Set basePath for GitHub Pages deployment only
+  basePath: isGitHubPages ? `/${repoName}` : '',
 
   // Disable image optimization for static export
   images: {
-    unoptimized: true,
+    unoptimized: isGitHubPages,
   },
 
   // Trailing slashes for GitHub Pages compatibility
-  trailingSlash: true,
+  trailingSlash: isGitHubPages,
 
   // Environment variables
   env: {
