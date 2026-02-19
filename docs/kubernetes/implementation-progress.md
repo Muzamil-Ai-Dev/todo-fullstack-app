@@ -123,6 +123,12 @@ Successfully completed Phase IV: Local Kubernetes Deployment. All tasks have bee
 29. `specs/006-k8s-local-deployment/quickstart.md` - Updated AIOps section
 30. `frontend/next.config.js` - Fixed to use standalone mode for Docker
 31. `docs/kubernetes/implementation-progress.md` - This file
+32. `helm/todo-app/values-local.yaml` - Local secrets (gitignored)
+33. `helm/todo-app/SECRETS.md` - Secrets management documentation
+34. `.github/workflows/deploy-frontend.yml` - Added GITHUB_PAGES=true
+35. `frontend/src/services/api.ts` - Increased timeout to 60s for HF Spaces
+36. `backend/Dockerfile` - Optimized for HF Spaces (single worker)
+37. `docs/kubernetes/huggingface-spaces-setup.md` - HF Spaces configuration guide
 
 ## Next Steps
 
@@ -145,6 +151,18 @@ Successfully completed Phase IV: Local Kubernetes Deployment. All tasks have bee
 - Both pods running and healthy
 - Health endpoints responding correctly
 - Ready for user acceptance testing
+
+✅ **GitHub Deployment**
+- Frontend: https://muzamil-ai-dev.github.io/todo-fullstack-app/ (GitHub Pages)
+- Backend: https://muzamil-ai-dev-todo-backend.hf.space (Hugging Face Spaces)
+- GitHub Actions: Deploying successfully
+- All code pushed to master branch
+
+⚠️ **Hugging Face Spaces Status**
+- Container optimized for memory constraints (single worker, concurrency limits)
+- Frontend timeout increased to 60s for cold starts
+- **ACTION REQUIRED**: Configure environment variables in HF Space settings
+- See: `docs/kubernetes/huggingface-spaces-setup.md` and `HF-SPACE-ACTION-ITEMS.md`
 
 ## Issues Encountered and Resolved
 
@@ -184,6 +202,55 @@ Successfully completed Phase IV: Local Kubernetes Deployment. All tasks have bee
 **Root Cause**: Docker Desktop memory constraints on Windows
 **Solution**: Reduced Minikube memory allocation from 4096MB to 3500MB
 **Command**: `minikube start --cpus=2 --memory=3500 --driver=docker`
+
+### Issue 6: Network Error on Frontend Login
+**Problem**: Frontend couldn't reach backend, network error on login attempt
+**Root Cause**: Port-forwarding stopped, frontend configured to use internal K8s service name
+**Solution**: Restarted port-forwarding and updated values-dev.yaml to use localhost:8000 for local development
+**Files Modified**: `helm/todo-app/values-dev.yaml`
+
+### Issue 7: CORS Error
+**Problem**: Access blocked by CORS policy when frontend tried to call backend
+**Root Cause**: Backend needed restart to apply CORS configuration
+**Solution**: Backend already had CORS configured, just needed pod restart
+**Files Modified**: None (configuration was already correct)
+
+### Issue 8: Database Connection Error
+**Problem**: Backend couldn't connect to database (localhost:5432)
+**Root Cause**: values-dev.yaml had placeholder database URL
+**Solution**: Updated with actual Neon PostgreSQL connection string
+**Files Modified**: `helm/todo-app/values-dev.yaml`
+
+### Issue 9: GitHub Push Blocked by Secret Scanning
+**Problem**: Push rejected due to Groq API key detected in commit history
+**Root Cause**: Secrets hardcoded in values-dev.yaml
+**Solution**: Created clean branch without secret history, moved secrets to values-local.yaml (gitignored)
+**Files Modified**: `helm/todo-app/values-dev.yaml`, `helm/todo-app/values-local.yaml`, `.gitignore`
+
+### Issue 10: GitHub Pages Deployment Failure
+**Problem**: GitHub Actions failed - frontend/out directory missing
+**Root Cause**: Next.js config using standalone mode for all builds
+**Solution**: Added GITHUB_PAGES=true env var to workflow, added force-static to health route
+**Files Modified**: `.github/workflows/deploy-frontend.yml`, `frontend/src/app/api/health/route.ts`
+
+### Issue 11: Hugging Face Spaces Exit Code 137 (OOM)
+**Problem**: Container killed due to out of memory
+**Root Cause**: Default uvicorn configuration too memory-intensive for HF Spaces free tier
+**Solution**: Optimized Dockerfile with single worker and concurrency limits
+**Files Modified**: `backend/Dockerfile` - Added `--workers 1 --limit-concurrency 10`
+
+### Issue 12: Frontend Timeout on Login
+**Problem**: timeout of 10000ms exceeded when trying to login
+**Root Cause**: HF Spaces cold start takes 30-60 seconds, frontend timeout was only 10s
+**Solution**: Increased API timeout from 10s to 60s
+**Files Modified**: `frontend/src/services/api.ts`
+
+### Issue 13: HF Spaces Stuck in "Starting" State
+**Problem**: HF Space showing "starting" for 5+ minutes without becoming available
+**Root Cause**: Missing required environment variables (DATABASE_URL, JWT_SECRET_KEY, etc.)
+**Solution**: Created comprehensive setup guide with all required environment variables
+**Files Created**: `docs/kubernetes/huggingface-spaces-setup.md`, `HF-SPACE-ACTION-ITEMS.md`
+**Status**: Waiting for user to configure environment variables in HF Space settings
 
 ### Docker Multi-stage Builds
 - **Frontend**: node:20-alpine base, non-root user (nextjs:1001)
