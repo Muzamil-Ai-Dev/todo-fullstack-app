@@ -15,7 +15,7 @@ Click "New secret" for each:
 
 ```
 DATABASE_URL
-postgresql://neondb_owner:npg_RgGc9Y7ulmKk@ep-bitter-sea-aibscj36-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require
+<your-neon-postgresql-connection-string>
 ```
 
 ```

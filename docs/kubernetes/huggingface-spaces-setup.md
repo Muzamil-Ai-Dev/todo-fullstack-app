@@ -6,7 +6,7 @@ The backend requires the following environment variables to be configured in you
 
 ### 1. Database Configuration
 ```
-DATABASE_URL=postgresql://neondb_owner:npg_RgGc9Y7ulmKk@ep-bitter-sea-aibscj36-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require
+DATABASE_URL=<your-neon-postgresql-connection-string>
 ```
 
 ### 2. JWT Configuration
