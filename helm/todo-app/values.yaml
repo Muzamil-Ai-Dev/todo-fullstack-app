@@ -1,0 +1,62 @@
+# Global configuration shared across all subcharts
+global:
+  environment: development
+  imagePullPolicy: IfNotPresent
+
+# Database configuration
+database:
+  host: "ep-xxx.neon.tech"
+  port: 5432
+  name: "todo_db"
+  sslmode: "require"
+
+# Secrets (override via --set or separate values file)
+secrets:
+  databaseUrl: ""  # postgresql://user:pass@host:5432/db?sslmode=require
+  groqApiKey: ""   # gsk_xxx
+  betterAuthSecret: ""  # secret_xxx
+  jwtSecretKey: ""  # jwt_secret_xxx
+
+# Frontend subchart configuration
+frontend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: todo-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    nodeEnv: production
+    apiUrl: "http://todo-backend:8000"
+
+# Backend subchart configuration
+backend:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: todo-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  env:
+    logLevel: info
+    corsOrigins: "http://localhost:3000,http://todo-frontend:3000"
