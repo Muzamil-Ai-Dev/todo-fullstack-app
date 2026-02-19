@@ -27,8 +27,8 @@ COPY ./main.py ./
 # Switch to non-root user
 USER appuser
 
-# Expose port
-EXPOSE 8000
+# Expose port (HF Spaces uses 7860 by default)
+EXPOSE 7860
 
 # Start the application with memory-efficient settings
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--limit-concurrency", "10"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860", "--workers", "1", "--limit-concurrency", "10"]
