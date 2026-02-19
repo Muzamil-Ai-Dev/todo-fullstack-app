@@ -3,7 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosR
 // Create axios instance with base configuration
 const apiClient: AxiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
-  timeout: 10000, // 10 seconds timeout
+  timeout: 60000, // 60 seconds timeout (for HF Spaces cold start)
   headers: {
     'Content-Type': 'application/json',
   },
